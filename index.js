@@ -56,8 +56,8 @@ server.get('/api/users', (req, res) => {
 server.get('/hash', (req, res) => {
   const name = req.query.name;
   // hash the name
-  var salt = bcrypt.genSaltSync(10);
-  const hash = bcrypt.genSaltSync(name, salt); // use bcryptjs to hash the name
+
+  const hash = bcrypt.hashSync(name, 8); // use bcryptjs to hash the name
   res.send(`the hash for ${name} is ${hash}`);
 });
 
