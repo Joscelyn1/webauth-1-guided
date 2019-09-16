@@ -17,8 +17,9 @@ server.get('/', (req, res) => {
 });
 
 server.post('/api/register', (req, res) => {
-  let user = req.body;
+  let { username, password } = req.body;
 
+  const hash = brcrypt.hashSync(password, 8);
   Users.add(user)
     .then(saved => {
       res.status(201).json(saved);
@@ -34,10 +35,12 @@ server.post('/api/login', (req, res) => {
   Users.findBy({ username })
     .first()
     .then(user => {
-      if (user) {
+      // check password
+
+      if (user && bcrypt.compareSync(password, user.password)) {
         res.status(200).json({ message: `Welcome ${user.username}!` });
       } else {
-        res.status(401).json({ message: 'Invalid Credentials' });
+        res.status(401).json({ message: 'You cannot pass!' });
       }
     })
     .catch(error => {
@@ -58,7 +61,6 @@ server.get('/hash', (req, res) => {
   // hash the name
 
   const hash = bcrypt.hashSync(name, 8); // use bcryptjs to hash the name
-  bcrypt.compareSync('name', hash);
   res.send(`the hash for ${name} is ${hash}`);
 });
 
