@@ -1,7 +1,7 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-var bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 
 const db = require('./database/dbConfig.js');
 const Users = require('./users/users-model.js');
@@ -19,8 +19,8 @@ server.get('/', (req, res) => {
 server.post('/api/register', (req, res) => {
   let { username, password } = req.body;
 
-  const hash = brcrypt.hashSync(password, 8);
-  Users.add(user)
+  const hash = bcrypt.hashSync(password, 8);
+  Users.add({ username, password })
     .then(saved => {
       res.status(201).json(saved);
     })
@@ -37,7 +37,7 @@ server.post('/api/login', (req, res) => {
     .then(user => {
       // check password
 
-      if (user && bcrypt.compareSync(password, user.password)) {
+      if (username && bcrypt.compareSync(password, user.password)) {
         res.status(200).json({ message: `Welcome ${user.username}!` });
       } else {
         res.status(401).json({ message: 'You cannot pass!' });
@@ -64,5 +64,23 @@ server.get('/hash', (req, res) => {
   res.send(`the hash for ${name} is ${hash}`);
 });
 
+function validateUserPassword(req, res, next) {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Name and password are required' });
+  }
+  if (!bcrypt.compareSync(password, user.password)) {
+    return res.status(400).json({ error: 'invalid password' });
+  } else {
+    next();
+  }
+}
+
 const port = process.env.PORT || 4000;
 server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
+
+// write a middleware that will check for the username and password
+//   and let the request continue to /api/users if credentials are good
+//   return a 401 if the credentials are invalid
+
+//   Use the middleware to restrict access to the GET /api/users endpoint
