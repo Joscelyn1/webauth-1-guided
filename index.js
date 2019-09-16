@@ -58,6 +58,7 @@ server.get('/hash', (req, res) => {
   // hash the name
 
   const hash = bcrypt.hashSync(name, 8); // use bcryptjs to hash the name
+  bcrypt.compareSync('name', hash);
   res.send(`the hash for ${name} is ${hash}`);
 });
 
